@@ -56,3 +56,8 @@ This project is open-source under the MIT License.
 
 ### 🌟 Star this repo if you find it useful! 🚀
 
+<p align="center">
+  <a href="https://discordapp.com/users/764166470602457178">
+    <img src="https://img.shields.io/badge/Join-Discord-5865F2?logo=discord&logoColor=white&style=for-the-badge" alt="Join Discord">
+  </a>
+</p>
