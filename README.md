@@ -1,22 +1,56 @@
-# Discord Bot
-# Slave Details
+# DeleteSlave 🤖 - The Ultimate Spam Cleaner Bot
 
-A simple Discord bot to remove all the messages sent by user for specific days.
-Good tool to remove spam messages.
+&#x20;*(Replace with actual image URL if available)*
 
-## Commands
+**DeleteSlave** is a Discord bot designed to efficiently remove spam messages from all text channels in a server. It helps keep your server clean by automatically deleting spammy messages and enforcing moderation rules.
 
-- `!pingSlave`: Replies with detailed latency information.
-- `!purgeall @Username <days>`: Deletes all messages from the mentioned user within the specified number of days.
+## 🚀 Features
 
-## Setup
+👉 Bulk delete messages from all channels\
+👉 Auto-detect spam messages (configurable)\
+👉 Ban or mute users for excessive spamming\
+👉 Customizable commands and permissions
 
-1. Clone the repository.
-2. Run `npm install` to install dependencies.
-3. Create a `.env` file and add your bot token.
-4. Run the bot using `node index.js`.
+## 📌 Installation
 
-## Requirements
+### **1. Clone the Repository**
 
-- Node.js
-- discord.js
+### **2. Install Dependencies**
+
+Make sure you have **Node.js** installed. Then, install dependencies:
+
+```bash
+npm install
+```
+
+### **3. Create a **``** File**
+
+Inside the project folder, create a `.env` file and add your bot token:
+
+```
+DISCORD_TOKEN=your-bot-token-here
+PREFIX=!
+```
+
+### **4. Run the Bot**
+
+```bash
+node index.js
+```
+
+## ⚙️ Usage
+
+| Command                         | Description                                                                             |
+| ------------------------------- | --------------------------------------------------------------------------------------- |
+| `!pingSlave`                    | Replies with detailed latency information                                               |
+| `!purgeall @Username <days>`    | Deletes all messages from the mentioned user within the specified number of days.       |
+
+
+## 🐟 License
+
+This project is open-source under the MIT License.
+
+---
+
+### 🌟 Star this repo if you find it useful! 🚀
+
