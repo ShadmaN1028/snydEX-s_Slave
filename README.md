@@ -1,6 +1,7 @@
 # DeleteSlave 🤖 - The Ultimate Spam Cleaner Bot
 
-&#x20;*(https://i.postimg.cc/dQ4B2Spp/botLogo.png)*
+&#x20;![Preview](https://i.postimg.cc/QM9K4j2w/wallpapersden-com-satoru-gojo-x-sukuna-hd-jujutsu-kaisen-epic-art-1927x1080.png)
+
 
 **DeleteSlave** is a Discord bot designed to efficiently remove spam messages from all text channels in a server. It helps keep your server clean by automatically deleting spammy messages and enforcing moderation rules.
 
