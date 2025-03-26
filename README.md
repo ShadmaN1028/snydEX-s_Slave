@@ -1,4 +1,5 @@
 # Discord Bot
+# Slave Details
 
 A simple Discord bot to remove all the messages sent by user for specific days.
 Good tool to remove spam messages.
