@@ -1,10 +1,12 @@
 # Discord Bot
 
-A simple Discord bot built with discord.js.
+A simple Discord bot to remove all the messages sent by user for specific days.
+Good tool to remove spam messages.
 
 ## Commands
 
-- `!ping`: Replies with "Pong!"
+- `!pingSlave`: Replies with detailed latency information.
+- `!purgeall @Username <days>`: Deletes all messages from the mentioned user within the specified number of days.
 
 ## Setup
 

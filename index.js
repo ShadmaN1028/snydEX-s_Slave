@@ -1,5 +1,7 @@
 require("dotenv").config(); // Load environment variables
 const { Client, GatewayIntentBits } = require("discord.js");
+const os = require("os");
+const nodeName = os.hostname(); // Get the system's hostname
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -66,6 +68,18 @@ client.on("messageCreate", async (message) => {
     // Send a confirmation message
     message.channel.send(
       `Deleted ${deletedCount} messages from ${user.tag} in the past ${days} day(s).`
+    );
+  }
+
+  if (message.content === "!pingSlave") {
+    const latency = Date.now() - message.createdTimestamp; // Calculate latency
+    const shardId = message.guild.shardId || 0; // Get shard ID (default to 0 if unavailable)
+    const clusterId = Math.floor(shardId / 10); // Example cluster calculation
+
+    message.reply(
+      `Pong!\nCluster ${clusterId}: ${latency.toFixed(
+        2
+      )}ms (avg)\nShard ${shardId}: ${latency.toFixed(2)}ms\nNode: ${nodeName}`
     );
   }
 });
