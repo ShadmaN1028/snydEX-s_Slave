@@ -1,87 +1,80 @@
-require("dotenv").config(); // Load environment variables
-const { Client, GatewayIntentBits } = require("discord.js");
+require("dotenv").config();
+const {
+  Client,
+  GatewayIntentBits,
+  PermissionsBitField,
+} = require("discord.js");
 const os = require("os");
-const nodeName = os.hostname(); // Get the system's hostname
+const nodeName = os.hostname();
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent, // Privileged intent
+    GatewayIntentBits.MessageContent,
   ],
 });
-
-const TOKEN = process.env.DISCORD_BOT_TOKEN; // Use environment variable for the token
 
 client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
 
-client.on("messageCreate", async (message) => {
-  if (message.content.startsWith("!purgeall")) {
-    // Check if the user has permission to manage messages
-    if (!message.member.permissions.has("MANAGE_MESSAGES")) {
-      return message.reply("You don't have permission to use this command.");
-    }
+// SLASH COMMAND HANDLER
+client.on("interactionCreate", async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
 
-    // Split the command into parts
-    const args = message.content.split(" ");
-    if (args.length < 3) {
-      return message.reply("Usage: `!purgeall @Username <days>`");
-    }
+  const { commandName } = interaction;
 
-    // Get the mentioned user
-    const user = message.mentions.users.first();
-    if (!user) return message.reply("Mention a user to delete their messages.");
+  if (commandName === "ping_slave") {
+    const latency = Date.now() - interaction.createdTimestamp;
+    const shardId = interaction.guild?.shardId || 0;
+    const clusterId = Math.floor(shardId / 10);
 
-    // Get the number of days from the command
-    const days = parseInt(args[2]);
-    if (isNaN(days) || days < 1) {
-      return message.reply(
-        "Please provide a valid number of days (e.g., `!purgeall @Username 7`)."
-      );
-    }
-
-    let deletedCount = 0;
-    const timeThreshold = Date.now() - days * 24 * 60 * 60 * 1000; // Calculate timestamp for X days ago
-
-    // Loop through all channels in the server
-    for (const channel of message.guild.channels.cache.values()) {
-      if (channel.isTextBased()) {
-        try {
-          // Fetch messages in the channel (up to 100 at a time)
-          const messages = await channel.messages.fetch({ limit: 100 });
-          const userMessages = messages.filter(
-            (m) => m.author.id === user.id && m.createdTimestamp > timeThreshold
-          );
-
-          // Delete the user's messages within the specified time frame
-          if (userMessages.size > 0) {
-            await channel.bulkDelete(userMessages);
-            deletedCount += userMessages.size;
-          }
-        } catch (error) {
-          console.error(`Error in ${channel.name}: ${error}`);
-        }
-      }
-    }
-
-    // Send a confirmation message
-    message.channel.send(
-      `Deleted ${deletedCount} messages from ${user.tag} in the past ${days} day(s).`
-    );
-  }
-
-  if (message.content === "!pingSlave") {
-    const latency = Date.now() - message.createdTimestamp; // Calculate latency
-    const shardId = message.guild.shardId || 0; // Get shard ID (default to 0 if unavailable)
-    const clusterId = Math.floor(shardId / 10); // Example cluster calculation
-
-    message.reply(
+    await interaction.reply(
       `Pong!\nCluster ${clusterId}: ${latency.toFixed(
         2
       )}ms (avg)\nShard ${shardId}: ${latency.toFixed(2)}ms\nNode: ${nodeName}`
     );
   }
+
+  if (commandName === "purgeall") {
+    const member = interaction.member;
+    if (!member.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+      return await interaction.reply({
+        content: "You don't have permission to use this command.",
+        ephemeral: true,
+      });
+    }
+
+    const user = interaction.options.getUser("target");
+    const days = interaction.options.getInteger("days");
+    if (!user || !days) return;
+
+    const timeThreshold = Date.now() - days * 24 * 60 * 60 * 1000;
+    let deletedCount = 0;
+
+    for (const channel of interaction.guild.channels.cache.values()) {
+      if (channel.isTextBased()) {
+        try {
+          const messages = await channel.messages.fetch({ limit: 100 });
+          const userMessages = messages.filter(
+            (m) => m.author.id === user.id && m.createdTimestamp > timeThreshold
+          );
+
+          if (userMessages.size > 0) {
+            await channel.bulkDelete(userMessages);
+            deletedCount += userMessages.size;
+          }
+        } catch (err) {
+          console.error(`Error in ${channel.name}:`, err);
+        }
+      }
+    }
+
+    await interaction.reply(
+      `🧹 Deleted ${deletedCount} messages from ${user.tag} in the past ${days} day(s).`
+    );
+  }
 });
 
-client.login(TOKEN);
+client.login(process.env.DISCORD_BOT_TOKEN);
