@@ -1,11 +1,10 @@
-# DeleteSlave 🤖 - The Ultimate Spam Cleaner Bot
+# snydEX's Slave 🤖 - The Ultimate Spam Cleaner Bot
 
 <p align="center">
-  <img src="https://i.postimg.cc/dQ4B2Spp/botLogo.png" alt="DeleteSlave Logo" width="100" height="100">
+  <img src="https://i.postimg.cc/dQ4B2Spp/botLogo.png" alt="snydEX's Slave Logo" width="100" height="100">
 </p>
 
-
-**DeleteSlave** is a Discord bot designed to efficiently remove spam messages from all text channels in a server. It helps keep your server clean by automatically deleting spammy messages and enforcing moderation rules.
+**snydEX's Slave** is a Discord bot designed to efficiently remove spam messages from all text channels in a server. It helps keep your server clean by automatically deleting spammy messages and enforcing moderation rules.
 
 ## 🚀 Features
 
@@ -42,11 +41,10 @@ node index.js
 
 ## ⚙️ Usage
 
-| Command                         | Description                                                                             |
-| ------------------------------- | --------------------------------------------------------------------------------------- |
-| `!pingSlave`                    | Replies with detailed latency information                                               |
-| `!purgeall @Username <days>`    | Deletes all messages from the mentioned user within the specified number of days.       |
-
+| Command                      | Description                                                                       |
+| ---------------------------- | --------------------------------------------------------------------------------- |
+| `!pingSlave`                 | Replies with detailed latency information                                         |
+| `!purgeall @Username <days>` | Deletes all messages from the mentioned user within the specified number of days. |
 
 ## 🐟 License
 

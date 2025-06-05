@@ -1,6 +1,6 @@
-# Terms of Service for DeleteSlave Bot
+# Terms of Service for snydEX's Slave Bot
 
-By using the DeleteSlave Discord Bot ("Bot"), you agree to the following terms:
+By using the snydEX's Slave Discord Bot ("Bot"), you agree to the following terms:
 
 1. **Usage**: The Bot is provided for free and is intended to help moderate Discord servers by deleting spam or unwanted messages.
 

@@ -1,6 +1,6 @@
-# Privacy Policy for DeleteSlave Bot
+# Privacy Policy for snydEX's Slave Bot
 
-Your privacy is important to us. This Privacy Policy explains how the DeleteSlave Discord Bot ("Bot") collects and uses information.
+Your privacy is important to us. This Privacy Policy explains how the snydEX's Slave Discord Bot ("Bot") collects and uses information.
 
 ## What We Collect
 
