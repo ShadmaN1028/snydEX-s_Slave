@@ -19,7 +19,96 @@ client.once("ready", () => {
   console.log(`Logged in as ${client.user.tag}`);
 });
 
-// SLASH COMMAND HANDLER
+async function deleteUserMessages(guild, userId, days) {
+  // Discord only allows bulkDelete for messages < 14 days old, so
+  // for messages older than that, we must delete individually.
+  // But you want 31 days. We'll handle that by deleting individually for >14 days messages.
+
+  const timeThreshold = Date.now() - days * 24 * 60 * 60 * 1000;
+  let deletedCount = 0;
+
+  for (const channel of guild.channels.cache.values()) {
+    if (!channel.isTextBased()) continue;
+    if (
+      !channel.viewable ||
+      !channel
+        .permissionsFor(guild.members.me)
+        .has(PermissionsBitField.Flags.ViewChannel)
+    ) {
+      // Bot cannot see this channel
+      console.warn(`❌ #${channel.name} : access denied `);
+      continue;
+    }
+    console.log(`🔄 #${channel.name} : checking...`);
+    try {
+      let lastMessageId = null;
+      let fetchMore = true;
+
+      while (fetchMore) {
+        // Fetch messages in batches of 100
+        const options = { limit: 100 };
+        if (lastMessageId) options.before = lastMessageId;
+
+        const messages = await channel.messages.fetch(options);
+        if (messages.size === 0) break;
+
+        // Filter user messages newer than threshold
+        const userMessages = messages.filter(
+          (m) => m.author.id === userId && m.createdTimestamp > timeThreshold
+        );
+
+        // Separate messages younger than 14 days and older
+        const bulkDeleteMsgs = userMessages.filter(
+          (m) => Date.now() - m.createdTimestamp < 14 * 24 * 60 * 60 * 1000
+        );
+        const individualDeleteMsgs = userMessages.filter(
+          (m) => Date.now() - m.createdTimestamp >= 14 * 24 * 60 * 60 * 1000
+        );
+
+        // Bulk delete young messages (max 100 at a time)
+        if (bulkDeleteMsgs.size > 0) {
+          await channel.bulkDelete(bulkDeleteMsgs, true).catch((e) => {
+            // If any error, just log and continue
+            console.error(`Bulk delete error in #${channel.name}:`, e.message);
+          });
+          deletedCount += bulkDeleteMsgs.size;
+        }
+
+        // Individually delete older messages (slow but necessary)
+        for (const [id, msg] of individualDeleteMsgs) {
+          try {
+            await msg.delete();
+            deletedCount++;
+            // Avoid rate limit hit
+            await new Promise((res) => setTimeout(res, 1000));
+          } catch (e) {
+            console.error(
+              `Individual delete error in #${channel.name} message ${id}:`,
+              e.message
+            );
+          }
+        }
+
+        // Prepare for next fetch
+        lastMessageId = messages.last().id;
+
+        // Stop if messages are older than threshold (no need to fetch further)
+        if (messages.last().createdTimestamp < timeThreshold) break;
+      }
+      console.log(`✅ #${channel.name} : checked`);
+    } catch (err) {
+      if (err.code === 50001) {
+        // Missing Access - skip this channel silently
+        console.warn(`Missing Access to channel #${channel.name}, skipping.`);
+      } else {
+        console.error(`Error fetching messages in #${channel.name}:`, err);
+      }
+    }
+  }
+  console.log("😴 snydEX's Slave is now sleeping...");
+  return deletedCount;
+}
+
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -47,33 +136,40 @@ client.on("interactionCreate", async (interaction) => {
     }
 
     const user = interaction.options.getUser("target");
-    const days = interaction.options.getInteger("days");
-    if (!user || !days) return;
+    let days = interaction.options.getInteger("days");
 
-    const timeThreshold = Date.now() - days * 24 * 60 * 60 * 1000;
-    let deletedCount = 0;
-
-    for (const channel of interaction.guild.channels.cache.values()) {
-      if (channel.isTextBased()) {
-        try {
-          const messages = await channel.messages.fetch({ limit: 100 });
-          const userMessages = messages.filter(
-            (m) => m.author.id === user.id && m.createdTimestamp > timeThreshold
-          );
-
-          if (userMessages.size > 0) {
-            await channel.bulkDelete(userMessages);
-            deletedCount += userMessages.size;
-          }
-        } catch (err) {
-          console.error(`Error in ${channel.name}:`, err);
-        }
-      }
+    if (!user || !days) {
+      return await interaction.reply({
+        content: "Please provide a user and number of days.",
+        ephemeral: true,
+      });
     }
 
-    await interaction.reply(
-      `🧹 Deleted ${deletedCount} messages from ${user.tag} in the past ${days} day(s).`
+    if (days > 31) {
+      days = 31; // limit max days to 31
+    }
+
+    // Defer reply since it can take time
+    await interaction.deferReply();
+    // later, edit the reply with actual content
+    await interaction.editReply(
+      "snydEX's Slave is working his ass off to delete the messages..."
     );
+
+    try {
+      const deletedCount = await deleteUserMessages(
+        interaction.guild,
+        user.id,
+        days
+      );
+
+      await interaction.editReply(
+        `🧹 Deleted ${deletedCount} messages from ${user.tag} in the past ${days} day(s).`
+      );
+    } catch (err) {
+      console.error("Error during purgeall command:", error);
+      await interaction.editReply("An error occurred while deleting messages.");
+    }
   }
 });
 
