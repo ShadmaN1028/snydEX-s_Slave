@@ -4,8 +4,27 @@ const {
   GatewayIntentBits,
   PermissionsBitField,
 } = require("discord.js");
+const express = require("express");
 const os = require("os");
 const nodeName = os.hostname();
+
+// Create Express server for health checks
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.get("/", (req, res) => {
+  console.log("✅ Health ping received at", new Date().toISOString());
+  res.json({
+    status: "online",
+    bot: client.user?.tag || "Not logged in",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Health check server running on port ${PORT}`);
+});
 
 const client = new Client({
   intents: [
@@ -122,7 +141,7 @@ client.on("interactionCreate", async (interaction) => {
     await interaction.reply(
       `Pong!\nCluster ${clusterId}: ${latency.toFixed(
         2
-      )}ms (avg)\nShard ${shardId}: ${latency.toFixed(2)}ms\nNode: ${nodeName}`
+      )}ms (avg)\nShard ${shardId}: ${latency.toFixed(2)}ms`
     );
   }
 
